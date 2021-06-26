@@ -11,6 +11,8 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
+require('./database/database-connection-pool'); // Para establecer la conexión con la base de datos
+const userController = require('./controllers/user-controller');
 
 // Configuración general
 console.info('Starting Notes App...');
@@ -50,6 +52,9 @@ app.use((req, res, next) => {
 
 // Servicio de archivos estáticos, se especifica también la ubicación del archivo index, sebe ser el segundo app.use
 app.use(express.static('./public', { index: 'index.html' }));
+
+// Rutas de la API
+app.post('/api/start-login-process', userController.startLoginProcess);
 
 // Error 404, siempre debe ser la última ruta
 app.get('*', (req, res) => {
