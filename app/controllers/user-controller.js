@@ -1,12 +1,13 @@
 /*!
- * Controlador para el control de usuarios
+ * Controlador para los usuarios
  */
 
 const { customAlphabet } = require('nanoid')
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
+const jwt = require('jsonwebtoken');
 
 /** Valida el usuario y envía el correo o el SMS para iniciar sesión */
-async function startLoginProcess(req, res) {
+async function requestLoginCode(req, res) {
 
     let username = req.body.username || null;
     let userData;
@@ -16,19 +17,19 @@ async function startLoginProcess(req, res) {
         userData = rows[0];
     } catch (err) {
         console.error(err);
-        return res.status(500).send('Database error');
+        return res.status(500).send('Error en la base de datos');
     }
 
-    if (!userData) return res.status(401).send('User does not exist');
+    if (!userData) return res.status(401).send('El usuario especificado no existe');
 
-    // Se genera y guarda el código de acceso
+    // Se genera y guarda el código de acceso y la fecha de expiración
     const accessCode = nanoid()
-
     try {
-        await db.promise().execute('UPDATE user SET accessCode = ? WHERE username = ?', [accessCode, username]);
+        const expirationDate = Date.now() + parseInt(process.env.ACCESS_CODE_DURATION)
+        await db.promise().execute('UPDATE user SET accessCode = ?, accessCodeExpirationDate = ? WHERE username = ?', [accessCode, expirationDate, username]);
     } catch (err) {
         console.error(err);
-        return res.status(500).send('Database error');
+        return res.status(500).send('Error en la base de datos');
     }
 
     // Se verifica si el nombre de usuario corresponde a un correo o un número de teléfono
@@ -37,14 +38,51 @@ async function startLoginProcess(req, res) {
         console.debug('Correo, código: ' + accessCode);
         res.send('ok');
     } else {
-         // Temporal
+        // Temporal
         console.debug('Teléfono, código: ' + accessCode);
         res.send('ok');
     }
 
 }
 
+/** Valida el usuario y envía el correo o el SMS para iniciar sesión */
+async function login(req, res) {
+
+    let username = req.body.username || null;
+    let accessCode = req.body.accessCode || null;
+    let userData;
+
+    try {
+        const [rows] = await db.promise().execute('SELECT * FROM user WHERE username = ? and BINARY accessCode = ?', [username, accessCode]);
+        userData = rows[0];
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Error en la base de datos');
+    }
+
+    if (!userData) return res.status(401).send('El código de acceso incorrecto');
+    if (Date.now() > userData.accessCodeExpirationDate) return res.status(401).send('El código de acceso ha expirado');
+
+    // Se elimina el código de acceso y la fecha de expiración de los datos del usuario
+    try {
+        await db.promise().execute('UPDATE user SET accessCode = ?, accessCodeExpirationDate = ? WHERE username = ?', [null, null, username]);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send('Error en la base de datos');
+    }
+
+    // Se genera el token de acceso y se envía como respuesta
+    const token = jwt.sign(
+        { username: userData.username },
+        process.env.JWT_SECRET,
+        { expiresIn: parseInt(process.env.TOKEN_DURATION) },
+    );
+
+    res.send(token);
+}
+
 // Se exportan las funciones
 module.exports = {
-    startLoginProcess,
+    requestLoginCode,
+    login,
 };

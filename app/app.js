@@ -53,8 +53,17 @@ app.use((req, res, next) => {
 // Servicio de archivos estáticos, se especifica también la ubicación del archivo index, sebe ser el segundo app.use
 app.use(express.static('./public', { index: 'index.html' }));
 
+// Verificación de de la sintaxis de la petición
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).send('Solicitud incorrecta');
+    }
+    return next(); // Si la solicitud es correcta, continúa al siguiente paso
+})
+
 // Rutas de la API
-app.post('/api/start-login-process', userController.startLoginProcess);
+app.post('/api/request-login-code', userController.requestLoginCode);
+app.post('/api/login', userController.login);
 
 // Error 404, siempre debe ser la última ruta
 app.get('*', (req, res) => {
