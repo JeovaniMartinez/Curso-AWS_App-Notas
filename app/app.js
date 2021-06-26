@@ -38,6 +38,7 @@ serverHttp.on('listening', () => console.info(`Notes App running at http://${pro
 serverHttp.on('error', (err) => handleServerError(err, 'http'));
 
 // Creación de Servidor HTTPS
+/*
 const httpsServerOptions = {
     key: fs.readFileSync(`${process.env.CERTIFICATE_PATH}privkey.pem`),
     cert: fs.readFileSync(`${process.env.CERTIFICATE_PATH}fullchain.pem`),
@@ -46,11 +47,14 @@ const serverHttps = https.createServer(httpsServerOptions, app);
 serverHttps.listen(process.env.HTTPS_PORT, process.env.IP);
 serverHttp.on('listening', () => console.info(`Notes App running at https://${process.env.IP}:${process.env.HTTPS_PORT}`));
 serverHttps.on('error', (err) => handleServerError(err, 'https'));
+*/
 
 // Redireccionamiento de http a https, debe ser el primer app.use, solo usar si esta habilitado el servidor https y si es requerido
+/*
 app.use((req, res, next) => {
     if (req.secure) next(); else res.redirect(`https://${req.headers.host}${req.url}`);
 });
+*/
 
 // Servicio de archivos estáticos, se especifica también la ubicación del archivo index, sebe ser el segundo app.use
 app.use(express.static('./public', { index: 'index.html' }));
