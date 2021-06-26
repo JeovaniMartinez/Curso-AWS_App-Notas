@@ -11,8 +11,10 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
+const securityTokenMiddleware = require('./middleware/token-authentication');
 require('./database/database-connection-pool'); // Para establecer la conexión con la base de datos
 const userController = require('./controllers/user-controller');
+const notesController = require('./controllers/notes-controller');
 
 // Configuración general
 console.info('Starting Notes App...');
@@ -64,6 +66,8 @@ app.use((err, req, res, next) => {
 // Rutas de la API
 app.post('/api/request-login-code', userController.requestLoginCode);
 app.post('/api/login', userController.login);
+app.use('/api/notes', securityTokenMiddleware); // Todas las rutas de las notas requieren autenticación
+app.get('/api/notes/list', notesController.listNotes);
 
 // Error 404, siempre debe ser la última ruta
 app.get('*', (req, res) => {
