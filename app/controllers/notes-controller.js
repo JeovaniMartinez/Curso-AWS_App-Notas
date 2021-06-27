@@ -7,7 +7,7 @@ async function listNotes(req, res) {
     let data;
     try {
         // El nombre de usuario se obtiene de los datos del token
-        const [rows] = await db.promise().execute('SELECT * FROM note WHERE username = ?', [req.tokenData.username]);
+        const [rows] = await db.promise().execute('SELECT * FROM note WHERE username = ? ORDER BY datetime DESC', [req.tokenData.username]);
         data = rows;
         res.send(data);
     } catch (err) {
