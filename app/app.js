@@ -72,6 +72,9 @@ app.post('/api/request-login-code', userController.requestLoginCode);
 app.post('/api/login', userController.login);
 app.use('/api/notes', securityTokenMiddleware); // Todas las rutas de las notas requieren autenticación
 app.get('/api/notes/list', notesController.listNotes);
+app.post('/api/notes/create', notesController.createNote);
+app.patch('/api/notes/update', notesController.updateNote);
+app.delete('/api/notes/delete', notesController.deleteNote);
 
 // Error 404, siempre debe ser la última ruta
 app.get('*', (req, res) => {
