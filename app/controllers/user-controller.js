@@ -2,7 +2,7 @@
  * Controlador para los usuarios
  */
 
-const { customAlphabet } = require('nanoid')
+const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
 const jwt = require('jsonwebtoken');
 
@@ -23,7 +23,7 @@ async function requestLoginCode(req, res) {
     if (!userData) return res.status(401).send('El usuario especificado no existe');
 
     // Se genera y guarda el código de acceso y la fecha de expiración
-    const accessCode = nanoid()
+    const accessCode = nanoid();
     try {
         const expirationDate = Date.now() + parseInt(process.env.ACCESS_CODE_DURATION)
         await db.promise().execute('UPDATE user SET accessCode = ?, accessCodeExpirationDate = ? WHERE username = ?', [accessCode, expirationDate, username]);

@@ -65,7 +65,7 @@ app.use((err, req, res, next) => {
         return res.status(400).send('Solicitud incorrecta');
     }
     return next(); // Si la solicitud es correcta, continúa al siguiente paso
-})
+});
 
 // Rutas de la API
 app.post('/api/request-login-code', userController.requestLoginCode);
