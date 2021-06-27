@@ -68,8 +68,8 @@ app.use((err, req, res, next) => {
 });
 
 // Rutas de la API
-app.post('/api/request-login-code', userController.requestLoginCode);
-app.post('/api/login', userController.login);
+app.post('/api/user/request-login-code', userController.requestLoginCode);
+app.post('/api/user/login', userController.login);
 app.use('/api/notes', securityTokenMiddleware); // Todas las rutas de las notas requieren autenticación
 app.get('/api/notes/list', notesController.listNotes);
 app.post('/api/notes/create', notesController.createNote);
