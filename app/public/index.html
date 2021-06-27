@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>App de Notas</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="./images/favicon.png" />
 
     <link type="text/css" rel="stylesheet" href="css/libs/libs.css">
@@ -13,9 +15,42 @@
 
 <body>
 
-    <div>
-        <h1>App de Notas</h1>
-    </div>
+    <section id="login-section" class="h-100">
+        <div class="container h-100">
+            <div class="row justify-content-sm-center h-100">
+                <div class="col-xxl-5 col-xl-6 col-lg-6 col-md-8 col-sm-9">
+                    <div class="text-center my-5">
+                        <img src="/images/logo.svg" alt="logo" width="100">
+                        <h2 class="mt-2">App de Notas</h2>
+                    </div>
+                    <div class="card shadow-lg">
+                        <div class="card-body p-5">
+                            <h1 class="fs-4 card-title fw-bold mb-4">Acceso</h1>
+                            <div>
+                                <div class="mb-3">
+                                    <label class="mb-2 text-muted" for="username-input">Ingresa el correo electrónico o
+                                        el número de teléfono asociado a tu cuenta para enviarte un código de
+                                        acceso.</label>
+                                    <input id="username-input" type="text" class="form-control" name="email" value=""
+                                        placeholder="Correo o teléfono" autofocus>
+                                </div>
+                                <div class="d-flex align-items-center mt-4">
+                                    <div id="login-spinner" class="spinner-border text-info invisible" role="status">
+                                    </div>
+                                    <button id="request-code-btn" class="btn btn-primary ms-auto">
+                                        Solicitar Código
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="copyright" class="text-center mt-5 text-muted">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script type="text/javascript" src="js/libs/libs.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
