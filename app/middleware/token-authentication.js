@@ -9,12 +9,12 @@ function isAuth(req, res, next) {
 
     const accessToken = req.headers['access-token'];
 
-    if (!accessToken) return res.status(401).send('Falta el token de acceso');
+    if (!accessToken) return res.status(403).send('Falta el token de acceso');
 
     // Verifica si el token es válido
     jwt.verify(accessToken, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).send('Token de acceso no válido');
+            return res.status(403).send('Token de acceso no válido');
         }
 
         // Si es correcto, agrega la información del token al request y continúa en el siguiente paso
