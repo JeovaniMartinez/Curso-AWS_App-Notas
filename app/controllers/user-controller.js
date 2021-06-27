@@ -78,10 +78,11 @@ async function login(req, res) {
         { expiresIn: parseInt(process.env.TOKEN_DURATION) },
     );
 
-    // Se responde con el token y el nombre del usuario
+    // Se responde con nombre de usuario, el token y la fecha de expiración del token (con un pequeño tiempo menor que cuando expira)
     res.send({
         name: userData.name,
-        accessToken: token
+        accessToken: token,
+        tokenExpirationTime: Date.now() + (parseInt(process.env.TOKEN_DURATION) * 1000) - 30000
     });
 }
 
