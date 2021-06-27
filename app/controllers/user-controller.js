@@ -71,14 +71,18 @@ async function login(req, res) {
         return res.status(500).send('Error en la base de datos');
     }
 
-    // Se genera el token de acceso y se envía como respuesta
+    // Se genera el token de acceso
     const token = jwt.sign(
         { username: userData.username },
         process.env.JWT_SECRET,
         { expiresIn: parseInt(process.env.TOKEN_DURATION) },
     );
 
-    res.send(token);
+    // Se responde con el token y el nombre del usuario
+    res.send({
+        name: userData.name,
+        accessToken: token
+    });
 }
 
 // Se exportan las funciones
