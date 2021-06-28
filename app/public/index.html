@@ -49,7 +49,7 @@
                                 <div class="mb-3">
                                     <label class="mb-2 text-muted" for="access-code-input">Ingresa el código que
                                         recibiste en tu correo electrónico o en tu teléfono.</label>
-                                    <input id="access-code-input" type="text" class="form-control"
+                                    <input id="access-code-input" type="text" class="form-control" autocomplete="off"
                                         name="access-code-input" value="" placeholder="Código" maxlength="6">
                                 </div>
                                 <div class="d-flex align-items-center mt-4">
@@ -88,12 +88,15 @@
             <label id="exit-btn" style="color: white; position: absolute; right: 10px; cursor: pointer;">Salir</label>
         </div>
 
-        <div class="container-fluid">
-
+        <div id="notes-container" class="mt-4">
 
         </div>
-        
+
     </section>
+
+    <div id="loading" class="loading d-none">
+        <div class="loader"></div>
+    </div>
 
     <script type="text/javascript" src="js/libs/libs.js"></script>
     <script type="text/javascript" src="js/main.js"></script>

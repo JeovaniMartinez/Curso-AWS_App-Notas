@@ -18,9 +18,15 @@ const returnBtn = $('#return-btn');
 const mainContainer = $('#main-container');
 const loginSection = $('#login-section');
 const exitBtn = $('#exit-btn');
+const notesContainer = $('#notes-container');
+const loading = $('#loading');
+
+let accessToken = '';
 
 /** Al inicia se verifica si hay sesión iniciada */
 if (checkAccessToken()) {
+    accessToken = localStorage.getItem('accessToken');
+    loadNotes();
     iziToast.success({
         message: 'Bienvenido(a) ' + localStorage.getItem('name'),
         close: true,
@@ -43,12 +49,10 @@ accessBtn.on('click', function () { login() });
 
 exitBtn.on('click', function () {
     Swal.fire({
-        text: "¿Estás seguro(a) que quieres salir de la app?",
+        text: '¿Estás seguro(a) que quieres salir de la app?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, salir',
+        confirmButtonText: 'Sí, Salir',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -58,6 +62,61 @@ exitBtn.on('click', function () {
         }
     })
 });
+
+/** Ejecuta una petición a la API, requiere el tipo de petición, la ruta y los datos a enviar */
+async function executeRequest(type, route, data, showLoading = true) {
+
+    if (showLoading) loading.removeClass('d-none');
+
+    return new Promise(function (resolve, reject) {
+
+        $.ajax({
+            type: type,
+            url: apiURL + route,
+            data: JSON.stringify(data),
+            contentType: 'application/json; charset=utf-8',
+            headers: { 'access-token': accessToken },
+            success: function (data) {
+                resolve(data);
+            },
+            complete: function (jqXHR, textStatus) {
+
+                loading.addClass('d-none');
+
+                if (jqXHR.status !== 200) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        confirmButtonText: 'Aceptar',
+                        text: jqXHR.responseText,
+                    });
+                    reject()
+                }
+
+                if (jqXHR.status === 403) {
+                    // Token expirado, dirige al inicio nuevamente
+                    loginSection.removeClass('d-none');
+                    mainContainer.addClass('d-none');
+                }
+            }
+        });
+
+    });
+}
+
+/** Verifica si el token de acceso aun es válido, devuelve un booleano que indica si aún es válido */
+function checkAccessToken() {
+
+    const tokenExpirationTime = localStorage.getItem('tokenExpirationTime');
+
+    if (tokenExpirationTime) {
+        if (Date.now() > parseInt(tokenExpirationTime)) return false
+        else return true
+    } else {
+        return false
+    }
+
+}
 
 /** Realiza el proceso para solicitar el código de acceso a la API */
 async function requestAccessCode() {
@@ -77,7 +136,7 @@ async function requestAccessCode() {
     usernameInput.prop('disabled', true);
     requestCodeBtn.prop('disabled', true);
 
-    executeRequest('POST', 'user/request-login-code', { username: username }).then(r => {
+    executeRequest('POST', 'user/request-login-code', { username: username }, false).then(r => {
 
         iziToast.success({
             message: 'Código enviado',
@@ -118,7 +177,10 @@ function login() {
     keepConnectedCheck.prop('disabled', true);
     returnBtn.addClass('d-none');
 
-    executeRequest('POST', 'user/login', { username: usernameInput.val().trim(), accessCode: accessCode }).then(result => {
+    executeRequest('POST', 'user/login', { username: usernameInput.val().trim(), accessCode: accessCode }, false).then(result => {
+
+        accessToken = result.accessToken;
+        loadNotes();
 
         iziToast.success({
             message: 'Bienvenido(a) ' + result.name,
@@ -128,12 +190,12 @@ function login() {
 
         loginP2.addClass('d-none');
         loginP1.removeClass('d-none');
-        usernameInput.val('');
+        accessCodeInput.val('');
 
         loginSection.addClass('d-none');
         mainContainer.removeClass('d-none');
 
-        if (keepConnectedCheck.is(":checked")) {
+        if (keepConnectedCheck.is(':checked')) {
             localStorage.setItem('name', result.name);
             localStorage.setItem('accessToken', result.accessToken);
             localStorage.setItem('tokenExpirationTime', result.tokenExpirationTime);
@@ -155,55 +217,77 @@ function login() {
 
 }
 
-/** Ejecuta una petición a la API, requiere el tipo de petición, la ruta y los datos a enviar */
-async function executeRequest(type, route, data) {
+/** Carga las notas del usuario */
+function loadNotes() {
 
-    return new Promise(function (resolve, reject) {
+    executeRequest('GET', 'notes/list', {}).then(result => {
 
-        $.ajax({
-            type: type,
-            url: apiURL + route,
-            data: JSON.stringify(data),
-            contentType: 'application/json; charset=utf-8',
-            success: function (data) {
-                resolve(data);
-            },
-            complete: function (jqXHR, textStatus) {
-                if (jqXHR.status !== 200) {
+        let htmlContent =
+            `
+        <div class='container-fluid'>
+            <div class='table-responsive'>
+                <table class='table'>
+                 <thead class='table-dark'>
+                       <tr>
+                          <th scope='col'>Id</th>
+                          <th scope='col'>Título</th>
+                          <th scope='col'>Contenido</th>
+                          <th scope='col' style='text-align: center;'>Fecha de Actualización</th>
+                          <th scope='col'></th>
+                       </tr>
+                    </thead>
+                    <tbody>
+        `;
 
+        result.forEach((note, index) => {
+            htmlContent +=
+                `
+                        <tr>
+                        <th scope='row'>${note.id}</th>
+                        <td>${note.title}</td>
+                        <td>${note.content}</td>
+                        <td style='width: 200px; text-align: center;'>${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}</td>
+                        <td style='width: 90px'><input type='image' src='../../images/icons/edit.svg' /><input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg' /></td>
+                        </tr>
+            `;
 
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        confirmButtonText: 'Aceptar',
-                        text: jqXHR.responseText,
-                    });
-
-                    reject()
-
-                }
-
-                if (jqXHR.status === 403) {
-                    // Token expirado, dirige al inicio nuevamente
-                    loginSection.removeClass('d-none');
-                    mainContainer.addClass('d-none');
-                }
-            }
         });
 
+        htmlContent +=
+            `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        `;
+
+        notesContainer.html(htmlContent);
+
+        // Se agregan los eventos para las filas de la tabla
+        result.forEach((note, index) => {
+            $(`#delete-${note.id}`).on('click', function () {
+                deleteNote(note.id)
+            });
+        });
+
+    }).catch(() => {
+        // Se maneja en la petición
     });
+
 }
 
-/** Verifica si el token de acceso aun es válido, devuelve un booleano que indica si aún es válido */
-function checkAccessToken() {
+/** Elimina la nota indicada, en base a su Id */
+function deleteNote(noteId) {
+    Swal.fire({
+        title: 'Eliminar Nota',
+        text: `¿Estás seguro(a) que quieres eliminar la nota ${noteId}?, esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, Eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
 
-    const tokenExpirationTime = localStorage.getItem('tokenExpirationTime');
-
-    if (tokenExpirationTime) {
-        if (Date.now() > parseInt(tokenExpirationTime)) return false
-        else return true
-    } else {
-        return false
-    }
-
+        }
+    })
 }
