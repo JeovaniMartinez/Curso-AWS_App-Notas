@@ -2,12 +2,15 @@
     "cSpell.words": [
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         "Redireccionamiento",
+        "Reintentar",
         "Swal",
         "datetime",
         "fullchain",
+        "maxlength",
         "milisegundos",
         "npmjs",
         "privkey",
-        "reconexiones"
+        "reconexiones",
+        "upsert"
     ]
 }

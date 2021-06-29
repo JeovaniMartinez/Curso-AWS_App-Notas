@@ -20,12 +20,15 @@ const loginSection = $('#login-section');
 const exitBtn = $('#exit-btn');
 const notesContainer = $('#notes-container');
 const loading = $('#loading');
+const newNoteBtn = $('#new-note');
+const userPersonalName = $('#user-personal-name');
 
 let accessToken = '';
 
 /** Al inicia se verifica si hay sesión iniciada */
 if (checkAccessToken()) {
     accessToken = localStorage.getItem('accessToken');
+    userPersonalName.text(localStorage.getItem('name'));
     loadNotes();
     iziToast.success({
         message: 'Bienvenido(a) ' + localStorage.getItem('name'),
@@ -34,6 +37,8 @@ if (checkAccessToken()) {
     });
     loginSection.addClass('d-none');
     mainContainer.removeClass('d-none');
+} else {
+    loginSection.removeClass('d-none');
 }
 
 copyright.html('Copyright &copy; ' + new Date().getFullYear() + '&mdash; Notes App');
@@ -63,6 +68,10 @@ exitBtn.on('click', function () {
     })
 });
 
+newNoteBtn.on('click', function () {
+    showNotesEditor();
+});
+
 /** Ejecuta una petición a la API, requiere el tipo de petición, la ruta y los datos a enviar */
 async function executeRequest(type, route, data, showLoading = true) {
 
@@ -88,7 +97,7 @@ async function executeRequest(type, route, data, showLoading = true) {
                         icon: 'error',
                         title: 'Error',
                         confirmButtonText: 'Aceptar',
-                        text: jqXHR.responseText,
+                        text: jqXHR.responseText || 'Error en la petición, por favor intentalo nuevamente.',
                     });
                     reject()
                 }
@@ -188,6 +197,7 @@ function login() {
             timeout: 1500,
         });
 
+        userPersonalName.text(result.name);
         loginP2.addClass('d-none');
         loginP1.removeClass('d-none');
         accessCodeInput.val('');
@@ -220,7 +230,20 @@ function login() {
 /** Carga las notas del usuario */
 function loadNotes() {
 
+    notesContainer.html('');
+    newNoteBtn.removeClass('d-none');
+
     executeRequest('GET', 'notes/list', {}).then(result => {
+
+        if (result.length === 0) {
+            notesContainer.html(`
+                <div style='text-align: center;'>
+                    <br>
+                    <h4>No tienes ninguna nota</h4>
+                </div>
+             `);
+            return;
+        }
 
         let htmlContent =
             `
@@ -246,8 +269,13 @@ function loadNotes() {
                         <th scope='row'>${note.id}</th>
                         <td>${note.title}</td>
                         <td>${note.content}</td>
-                        <td style='width: 200px; text-align: center;'>${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}</td>
-                        <td style='width: 90px'><input type='image' src='../../images/icons/edit.svg' /><input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg' /></td>
+                        <td style='width: 200px; text-align: center;'>
+                            ${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}
+                        </td>
+                        <td style='width: 90px'>
+                            <input id='edit-${note.id}' type='image' src='../../images/icons/edit.svg' />
+                            <input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg' />
+                        </td>
                         </tr>
             `;
 
@@ -265,13 +293,28 @@ function loadNotes() {
 
         // Se agregan los eventos para las filas de la tabla
         result.forEach((note, index) => {
+            $(`#edit-${note.id}`).on('click', function () {
+                showNotesEditor(note.id, note.title, note.content)
+            });
             $(`#delete-${note.id}`).on('click', function () {
                 deleteNote(note.id)
             });
         });
 
     }).catch(() => {
-        // Se maneja en la petición
+
+        notesContainer.html(`
+            <div style='text-align: center;'>
+                <br>
+                <h4>Error al cargar las notas.</h4><br>
+                <button id='retry-load-notes' type='button' value='button'  class='btn btn-primary ms-auto'>Reintentar</button>
+            </div>
+        `);
+
+        $('#retry-load-notes').on('click', function () {
+            loadNotes();
+        });
+
     });
 
 }
@@ -287,7 +330,103 @@ function deleteNote(noteId) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
+            executeRequest('DELETE', 'notes/delete', { id: noteId }).then(r => {
 
+                iziToast.success({
+                    message: 'Nota eliminada',
+                    close: true,
+                    timeout: 1500,
+                });
+
+                loadNotes();
+
+            }).catch(() => {
+                // Se maneja en la petición
+            });
         }
     })
+}
+
+/** Muestra el editor de notas, en blanco o con la nota indicada */
+function showNotesEditor(noteId, noteTitle = '', noteContent = '') {
+
+    newNoteBtn.addClass('d-none');
+    let label = noteId ? 'Editar Nota' : 'Nueva Nota';
+    let buttonText = noteId ? 'Actualizar Nota' : 'Guardar Nota';
+
+    notesContainer.html(`
+            <div style='text-align: center;'>
+                <h4>${label}</h4>
+            </div>
+            <div class='form' style='margin: 15px'>
+                <input id='note-title' type='text' class='form-control' placeholder='Título' maxlength='500' value="${noteTitle}">
+                <textarea id='note-content' class='form-control mt-3' placeholder='Contenido' id='floatingTextarea' style="height: 350px">${noteContent}</textarea>
+            </div>
+            <div style='text-align: right; margin: 15px'>
+                <button id='upsert-note' class='btn btn-success ms-auto'>${buttonText}</button>
+                <button id='edit-note-cancel' class='btn btn-warning ms-auto'>Cancelar</button>
+            </div>
+        `);
+
+    $('#edit-note-cancel').on('click', function () {
+        loadNotes();
+    });
+
+
+    $('#upsert-note').on('click', function () {
+
+        const title = $('#note-title').val().trim();
+        const content = $('#note-content').val().trim();
+
+        if (title === '') {
+            iziToast.warning({
+                message: 'Ingresa el título de la nota',
+                close: true,
+                timeout: 2000,
+            });
+            return;
+        }
+
+        if (content === '') {
+            iziToast.warning({
+                message: 'Ingresa el contenido de la nota',
+                close: true,
+                timeout: 2000,
+            });
+            return;
+        }
+
+        if (!noteId) {
+            // Nueva Nota
+            executeRequest('POST', 'notes/create', { title: title, content: content }).then(r => {
+
+                iziToast.success({
+                    message: 'La nota se ha guardado correctamente',
+                    close: true,
+                    timeout: 1500,
+                });
+
+                loadNotes();
+
+            }).catch(() => {
+                // Se maneja en la petición
+            });
+        } else {
+            // Actualizar Nota
+            executeRequest('PATCH', 'notes/update', { id: noteId, title: title, content: content }).then(r => {
+
+                iziToast.success({
+                    message: 'La nota se ha actualizado correctamente',
+                    close: true,
+                    timeout: 1500,
+                });
+
+                loadNotes();
+
+            }).catch(() => {
+                // Se maneja en la petición
+            });
+        }
+    });
+
 }
