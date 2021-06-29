@@ -25,7 +25,7 @@ const userPersonalName = $('#user-personal-name');
 
 let accessToken = '';
 
-/** Al inicia se verifica si hay sesión iniciada */
+/** Al inicio se verifica si hay sesión iniciada */
 if (checkAccessToken()) {
     accessToken = localStorage.getItem('accessToken');
     userPersonalName.text(localStorage.getItem('name'));
@@ -41,7 +41,10 @@ if (checkAccessToken()) {
     loginSection.removeClass('d-none');
 }
 
+/** Ajuste del copyright */
 copyright.html('Copyright &copy; ' + new Date().getFullYear() + '&mdash; Notes App');
+
+/** Acciones de los botones */
 
 requestCodeBtn.on('click', function () { requestAccessCode(); });
 
@@ -228,7 +231,7 @@ function login() {
 
 }
 
-/** Carga las notas del usuario */
+/** Carga las notas del usuario y genera una tabla para mostrarlas */
 function loadNotes() {
 
     notesContainer.html('');
@@ -372,7 +375,6 @@ function showNotesEditor(noteId, noteTitle = '', noteContent = '') {
     $('#edit-note-cancel').on('click', function () {
         loadNotes();
     });
-
 
     $('#upsert-note').on('click', function () {
 
