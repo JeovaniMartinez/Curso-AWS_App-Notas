@@ -134,7 +134,7 @@ function checkAccessToken() {
 /** Realiza el proceso para solicitar el código de acceso a la API */
 async function requestAccessCode() {
 
-    const username = usernameInput.val().trim();
+    let username = usernameInput.val().trim();
 
     if (username === '') {
         iziToast.warning({
@@ -143,6 +143,13 @@ async function requestAccessCode() {
             timeout: 2000,
         });
         return
+    }
+
+    // Si es teléfono y no tiene el signo +, se le agrega
+    if (!username.includes('@')) {
+        if (username[0] !== '+') {
+            username = '+' + username
+        }
     }
 
     loginSpinner.removeClass('invisible');
