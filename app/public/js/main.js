@@ -119,7 +119,7 @@ function checkAccessToken() {
     const tokenExpirationTime = localStorage.getItem('tokenExpirationTime');
 
     if (tokenExpirationTime) {
-        if (Date.now() > parseInt(tokenExpirationTime)) return false
+        if (Date.now() > parseInt(tokenExpirationTime)) return false;
         else return true
     } else {
         return false
@@ -171,7 +171,7 @@ function login() {
 
     const accessCode = accessCodeInput.val().trim();
 
-    if (accessCode === '' || accessCode.length != 6) {
+    if (accessCode === '' || accessCode.length !== 6) {
         iziToast.warning({
             message: 'Ingresa un código de acceso válido',
             close: true,
@@ -273,8 +273,8 @@ function loadNotes() {
                             ${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}
                         </td>
                         <td style='width: 90px'>
-                            <input id='edit-${note.id}' type='image' src='../../images/icons/edit.svg' />
-                            <input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg' />
+                            <input id='edit-${note.id}' type='image' src='../../images/icons/edit.svg'  alt=""/>
+                            <input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg'  alt=""/>
                         </td>
                         </tr>
             `;
