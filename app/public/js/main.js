@@ -268,7 +268,7 @@ function loadNotes() {
                         <tr>
                         <th scope='row'>${note.id}</th>
                         <td>${note.title}</td>
-                        <td>${note.content}</td>
+                        <td style='white-space: pre-wrap;'>${note.content}</td>
                         <td style='width: 200px; text-align: center;'>
                             ${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}
                         </td>
@@ -359,8 +359,8 @@ function showNotesEditor(noteId, noteTitle = '', noteContent = '') {
                 <h4>${label}</h4>
             </div>
             <div class='form' style='margin: 15px'>
-                <input id='note-title' type='text' class='form-control' placeholder='Título' maxlength='500' value="${noteTitle}">
-                <textarea id='note-content' class='form-control mt-3' placeholder='Contenido' id='floatingTextarea' style="height: 350px">${noteContent}</textarea>
+                <input id='note-title' type='text' class='form-control' placeholder='Título' maxlength='500' value='${noteTitle}'>
+                <textarea id='note-content' class='form-control mt-3' placeholder='Contenido' id='floatingTextarea' style='height: 350px'>${noteContent}</textarea>
             </div>
             <div style='text-align: right; margin: 15px'>
                 <button id='upsert-note' class='btn btn-success ms-auto'>${buttonText}</button>
