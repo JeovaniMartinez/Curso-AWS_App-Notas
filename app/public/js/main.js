@@ -48,6 +48,7 @@ requestCodeBtn.on('click', function () { requestAccessCode(); });
 returnBtn.on('click', function () {
     loginP2.addClass('d-none');
     loginP1.removeClass('d-none');
+    accessCodeInput.val('');
 });
 
 accessBtn.on('click', function () { login() });
