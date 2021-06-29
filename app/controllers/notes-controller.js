@@ -4,12 +4,10 @@
 
 /** Devuelve una la lista de todas las notas del usuario */
 async function listNotes(req, res) {
-    let data;
     try {
         // El nombre de usuario se obtiene de los datos del token
         const [rows] = await db.promise().execute('SELECT * FROM note WHERE username = ? ORDER BY datetime DESC', [req.tokenData.username]);
-        data = rows;
-        res.send(data);
+        res.send(rows);
     } catch (err) {
         console.error(err);
         return res.status(500).send('Error en la base de datos');

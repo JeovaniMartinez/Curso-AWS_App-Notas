@@ -56,7 +56,7 @@ app.use((req, res, next) => {
 });
 */
 
-// Servicio de archivos estáticos, se especifica también la ubicación del archivo index, sebe ser el segundo app.use
+// Servicio de archivos estáticos, se especifica también la ubicación del archivo index
 app.use(express.static('./public', { index: 'index.html' }));
 
 // Verificación de de la sintaxis de la petición

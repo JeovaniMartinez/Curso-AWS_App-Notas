@@ -24,28 +24,30 @@ async function requestLoginCode(req, res) {
 
     // Se genera y guarda el código de acceso y la fecha de expiración
     const accessCode = nanoid();
+    const expirationDate = Date.now() + parseInt(process.env.ACCESS_CODE_DURATION);
     try {
-        const expirationDate = Date.now() + parseInt(process.env.ACCESS_CODE_DURATION)
         await db.promise().execute('UPDATE user SET accessCode = ?, accessCodeExpirationDate = ? WHERE username = ?', [accessCode, expirationDate, username]);
     } catch (err) {
         console.error(err);
         return res.status(500).send('Error en la base de datos');
     }
 
-    // Se verifica si el nombre de usuario corresponde a un correo o un número de teléfono
+    // Se verifica si el nombre de usuario corresponde a un correo o un número de teléfono enviar el código por el medio que corresponda
     if (userData.username.includes('@')) {
-        // Temporal
+        // FUNCIONALIDAD PENDIENTE
+        // Código temporal para pruebas
         console.debug('Correo, código: ' + accessCode);
         res.send('ok');
     } else {
-        // Temporal
+        // FUNCIONALIDAD PENDIENTE
+        // Código temporal para pruebas
         console.debug('Teléfono, código: ' + accessCode);
         res.send('ok');
     }
 
 }
 
-/** Valida el usuario y envía el correo o el SMS para iniciar sesión */
+/** Ejecuta el inicio de sesión */
 async function login(req, res) {
 
     let username = req.body.username || null;
