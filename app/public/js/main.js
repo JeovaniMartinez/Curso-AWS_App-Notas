@@ -101,7 +101,7 @@ async function executeRequest(type, route, data, showLoading = true) {
                         icon: 'error',
                         title: 'Error',
                         confirmButtonText: 'Aceptar',
-                        text: jqXHR.responseText || 'Error en la petición, por favor intentalo nuevamente.',
+                        text: jqXHR.responseText || 'Error en la petición, por favor inténtalo nuevamente.',
                     });
                     reject()
                 }
@@ -138,7 +138,7 @@ async function requestAccessCode() {
 
     if (username === '') {
         iziToast.warning({
-            message: 'Ingresa tu correo electrónico o tu número teléfono',
+            message: 'Ingresa tu correo electrónico o tu número de teléfono',
             close: true,
             timeout: 2000,
         });
