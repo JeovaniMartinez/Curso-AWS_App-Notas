@@ -1,6 +1,1 @@
-Aplicación para el curso: -----------
-
-Tecnologías Usadas:
-- Node.js
-- Express.js
-- MySQL 
+### Rama del proyecto para probar la App de Notas en un entorno local.
