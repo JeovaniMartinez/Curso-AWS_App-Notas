@@ -273,8 +273,8 @@ function loadNotes() {
                             ${new Date(note.datetime).toLocaleDateString()} ${new Date(note.datetime).toLocaleTimeString()}
                         </td>
                         <td style='width: 90px'>
-                            <input id='edit-${note.id}' type='image' src='../../images/icons/edit.svg'  alt=""/>
-                            <input id='delete-${note.id}' type='image' src='../../images/icons/delete.svg'  alt=""/>
+                            <input id='edit-${note.id}' type='image' src='./images/icons/edit.svg'  alt=""/>
+                            <input id='delete-${note.id}' type='image' src='./images/icons/delete.svg'  alt=""/>
                         </td>
                         </tr>
             `;
