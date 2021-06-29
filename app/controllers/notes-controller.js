@@ -43,8 +43,8 @@ async function updateNote(req, res) {
 
     try {
         const result = await db.promise().execute(
-            'UPDATE note SET title = ?, content = ?, datetime = ? WHERE id = ?',
-            [title, content, Date.now(), id]
+            'UPDATE note SET title = ?, content = ?, datetime = ? WHERE id = ? AND username = ?',
+            [title, content, Date.now(), id, req.tokenData.username]
         );
 
         if (result[0].affectedRows === 1) res.send('ok');
@@ -63,7 +63,7 @@ async function deleteNote(req, res) {
     if (!id) return res.status(422).send('Datos incorrectos'); // Validación
 
     try {
-        const result = await db.promise().execute('DELETE FROM note WHERE id = ?', [id]);
+        const result = await db.promise().execute('DELETE FROM note WHERE id = ? AND username = ?', [id, req.tokenData.username]);
 
         if (result[0].affectedRows === 1) res.send('ok');
         else return res.status(404).send('La nota especificada no existe');
