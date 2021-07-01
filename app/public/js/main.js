@@ -76,6 +76,18 @@ newNoteBtn.on('click', function () {
     showNotesEditor();
 });
 
+usernameInput.on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        requestAccessCode();
+    }
+});
+
+accessCodeInput.on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+        login();
+    }
+});
+
 /** Ejecuta una petición a la API, requiere el tipo de petición, la ruta y los datos a enviar */
 async function executeRequest(type, route, data, showLoading = true) {
 
