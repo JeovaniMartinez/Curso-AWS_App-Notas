@@ -6,6 +6,11 @@ const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
 const jwt = require('jsonwebtoken');
 
+// Configuración del servicio de Amazon  SES. Referencia: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascriptv3/example_code/ses/src/ses_sendemail.js
+const { SESClient } = require('@aws-sdk/client-ses'); // Se importa el cliente del SDK
+const awsSesClient = new SESClient({region: process.env.AWS_REGION}); // Se crea la instancia del cliente
+const { SendEmailCommand } = require('@aws-sdk/client-ses');
+
 /** Valida el usuario y envía el correo o el SMS para iniciar sesión */
 async function requestLoginCode(req, res) {
 
@@ -34,10 +39,40 @@ async function requestLoginCode(req, res) {
 
     // Se verifica si el nombre de usuario corresponde a un correo o un número de teléfono enviar el código por el medio que corresponda
     if (userData.username.includes('@')) {
-        // FUNCIONALIDAD PENDIENTE
-        // Código temporal para pruebas
-        console.debug('Correo, código: ' + accessCode);
-        res.send('ok');
+
+        // Parámetros del correo
+        const emailParams = {
+            Destination: {
+                ToAddresses: [
+                    userData.username, // Destinatario
+                ],
+            },
+            Message: {
+                Body: {
+                    /* Puede ser Html o solo texto */
+                    Html: {
+                        Charset: 'UTF-8',
+                        Data: `Tu código de acceso para la App de Notas es: <b>${accessCode}</b>`,
+                    },
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: 'Código de Acceso de la App de Notas',
+                },
+            },
+            Source: process.env.EMAIL_SENDER_ADDRESS, // Remitente
+        };
+
+        // Se ejecuta el envío del correo
+        try {
+            const emailResult = await awsSesClient.send(new SendEmailCommand(emailParams));
+            console.log(emailResult);
+            res.send('ok');
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send('Error al enviar el correo electrónico');
+        }
+
     } else {
         // FUNCIONALIDAD PENDIENTE
         // Código temporal para pruebas
