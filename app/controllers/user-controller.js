@@ -52,7 +52,21 @@ async function requestLoginCode(req, res) {
                     /* Puede ser Html o solo texto */
                     Html: {
                         Charset: 'UTF-8',
-                        Data: `Tu código de acceso para la App de Notas es: <b>${accessCode}</b>`,
+                        Data: `
+                            <div style="width:590px; margin:0 auto; border-radius: 20px; background-color:#F8F8F8;">
+                                 <div style="background-color:#b18f00">
+                                    <h2 style="text-align:center; padding-top:10px; padding-bottom: 10px; color:#FFFFFF">App de Notas
+                                 </div>
+                                 <div>
+                                    <p style="text-align:center">Tu código de acceso es:</p>
+                                 </div>
+                                 <div>
+                                    <h2 style="text-align:center; color:#006fae;">${accessCode}</h2>
+                                 </div>
+                                    <p style="text-align:center; padding-bottom:10px">Este código se vencerá en ${parseInt(process.env.ACCESS_CODE_DURATION) / 60000} minutos</p>
+                                 <div>
+                             </div>
+                        `,
                     },
                 },
                 Subject: {
@@ -66,7 +80,7 @@ async function requestLoginCode(req, res) {
         // Se ejecuta el envío del correo
         try {
             const emailResult = await awsSesClient.send(new SendEmailCommand(emailParams));
-            console.log(emailResult);
+            console.log(emailResult); // Solo para pruebas
             res.send('ok');
         } catch (err) {
             console.error(err);
