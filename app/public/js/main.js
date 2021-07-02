@@ -203,13 +203,22 @@ function login() {
         return
     }
 
+    let username = usernameInput.val().trim();
+
+    // Si es teléfono y no tiene el signo +, se le agrega
+    if (!username.includes('@')) {
+        if (username[0] !== '+') {
+            username = '+' + username
+        }
+    }
+
     loginSpinner2.removeClass('invisible');
     accessCodeInput.prop('disabled', true);
     accessBtn.prop('disabled', true);
     keepConnectedCheck.prop('disabled', true);
     returnBtn.addClass('d-none');
 
-    executeRequest('POST', 'user/login', { username: usernameInput.val().trim(), accessCode: accessCode }, false).then(result => {
+    executeRequest('POST', 'user/login', { username: username, accessCode: accessCode }, false).then(result => {
 
         accessToken = result.accessToken;
         loadNotes();
