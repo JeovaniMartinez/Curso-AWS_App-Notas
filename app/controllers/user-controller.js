@@ -13,6 +13,13 @@ const { SESClient } = require('@aws-sdk/client-ses'); // Se importa el cliente d
 const awsSesClient = new SESClient({region: process.env.AWS_REGION}); // Se crea la instancia del cliente
 const { SendEmailCommand } = require('@aws-sdk/client-ses');
 
+// Configuración del servicio de Amazon SES para envío de SMS.
+// Documentación: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-sns/classes/publishcommand.html
+// Ejemplo: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascriptv3/example_code/sns/src/sns_publishsms.js
+const { SNSClient } = require('@aws-sdk/client-sns');
+const awsSnsClient = new SNSClient({region: process.env.AWS_REGION});
+const { PublishCommand } = require('@aws-sdk/client-sns');
+
 /** Valida el usuario y envía el correo o el SMS para iniciar sesión */
 async function requestLoginCode(req, res) {
 
@@ -90,10 +97,23 @@ async function requestLoginCode(req, res) {
         }
 
     } else {
-        // FUNCIONALIDAD PENDIENTE
-        // Código temporal para pruebas
-        console.debug('Teléfono, código: ' + accessCode);
-        res.send('ok');
+
+        // Parámetros para el SMS
+        const smsParams = {
+            Message: `Tu código de acceso para la App de Notas es: ${accessCode}`,
+            PhoneNumber: userData.username, // Número te teléfono, en la estructura E.164
+        };
+
+        // Se ejecuta el envío del SMS
+        try {
+            const smsResult = await awsSnsClient.send(new PublishCommand(smsParams));
+            console.log(smsResult); // Solo para pruebas
+            res.send('ok');
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send('Error al enviar el SMS');
+        }
+
     }
 
 }
