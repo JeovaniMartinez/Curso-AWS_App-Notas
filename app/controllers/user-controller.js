@@ -89,7 +89,7 @@ async function requestLoginCode(req, res) {
         // Se ejecuta el envío del correo
         try {
             const emailResult = await awsSesClient.send(new SendEmailCommand(emailParams));
-            console.log(emailResult); // Solo para pruebas
+            // console.log(emailResult); // Solo para pruebas
             res.send('ok');
         } catch (err) {
             console.error(err);
@@ -107,7 +107,7 @@ async function requestLoginCode(req, res) {
         // Se ejecuta el envío del SMS
         try {
             const smsResult = await awsSnsClient.send(new PublishCommand(smsParams));
-            console.log(smsResult); // Solo para pruebas
+            // console.log(smsResult); // Solo para pruebas
             res.send('ok');
         } catch (err) {
             console.error(err);
