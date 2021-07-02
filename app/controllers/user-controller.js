@@ -6,7 +6,9 @@ const { customAlphabet } = require('nanoid');
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6);
 const jwt = require('jsonwebtoken');
 
-// Configuración del servicio de Amazon  SES. Referencia: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascriptv3/example_code/ses/src/ses_sendemail.js
+// Configuración del servicio de Amazon SES para envío de correos electrónicos.
+// Documentación: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-ses/classes/sendemailcommand.html
+// Ejemplo: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascriptv3/example_code/ses/src/ses_sendemail.js
 const { SESClient } = require('@aws-sdk/client-ses'); // Se importa el cliente del SDK
 const awsSesClient = new SESClient({region: process.env.AWS_REGION}); // Se crea la instancia del cliente
 const { SendEmailCommand } = require('@aws-sdk/client-ses');
