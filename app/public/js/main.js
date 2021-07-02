@@ -232,6 +232,7 @@ function login() {
         userPersonalName.text(result.name);
         loginP2.addClass('d-none');
         loginP1.removeClass('d-none');
+        usernameInput.val('');
         accessCodeInput.val('');
 
         loginSection.addClass('d-none');
