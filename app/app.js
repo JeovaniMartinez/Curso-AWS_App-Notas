@@ -19,7 +19,9 @@ const notesController = require('./controllers/notes-controller');
 // Configuración general
 console.info('Starting Notes App...');
 const app = express(); // Aplicación de express
-app.use(helmet()); // Para seguridad
+// Middleware para mejorar la seguridad
+app.use(helmet({contentSecurityPolicy: false})); // Usar esta configuración si el servidor usa unicamente http
+//app.use(helmet()); //  Usar esta configuración si el servidor usa https
 app.use(cors()); // Para habilitar CORS, usar solo si es necesario
 app.use(compression()); // Habilitar la compresión
 app.use(express.urlencoded({ limit: '16mb', extended: true })); // Para poder procesar los datos de la solicitud, con el límite de tamaño indicado
@@ -45,7 +47,7 @@ const httpsServerOptions = {
 };
 const serverHttps = https.createServer(httpsServerOptions, app);
 serverHttps.listen(process.env.HTTPS_PORT, process.env.IP);
-serverHttp.on('listening', () => console.info(`Notes App running at https://${process.env.IP}:${process.env.HTTPS_PORT}`));
+serverHttps.on('listening', () => console.info(`Notes App running at https://${process.env.IP}:${process.env.HTTPS_PORT}`));
 serverHttps.on('error', (err) => handleServerError(err, 'https'));
 */
 
